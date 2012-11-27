@@ -1,0 +1,24 @@
+[submodule "pe"]
+	path = pe
+	url = d:/git/pe.git
+[submodule "struct"]
+	path = struct
+	url = d:/git/struct.git
+[submodule "util"]
+	path = util
+	url = d:/git/util.git
+[submodule "detours"]
+	path = detours
+	url = d:/git/detours.git
+[submodule "process"]
+	path = process
+	url = d:/git/process.git
+[submodule "libxml2"]
+	path = libxml2
+	url = d:/git/libxml2.git
+[submodule "hash"]
+	path = hash
+	url = d:/git/hash.git
+[submodule "shell"]
+	path = shell
+	url = d:/git/shell.git

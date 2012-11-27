@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scanners>
+    <scanner>
+        <name>Kaspersky</name>
+        <cmdline>kavconp.exe /y /! /l%LOG_FILE% /x /k /n %VIRUS_DIR%</cmdline>
+        <path>D:/src/scanners/Kaspersky</path>
+        <flush>1</flush>
+    </scanner>
+    <cancel>
+        <name>nod32</name>
+        <cmdline>ecls.exe /base-dir=D:\src\scanners\nod32 /unwanted /unsafe /log-all /no-boots /pt=webscan /log-file=%LOG_FILE% %VIRUS_DIR%</cmdline>
+        <path>D:/src/scanners/nod32</path>
+        <flush>1</flush>
+    </cancel>
+    <scanner>
+        <name>Rising</name>
+        <cmdline>RavScan.exe /A /LOG %LOG_FILE% /F %VIRUS_DIR%</cmdline>
+        <path>D:/src/scanners/Rising</path>
+        <flush>1</flush>
+    </scanner>
+    <scanner>
+        <name>Sophos</name>
+        <cmdline>sav32cli.exe -ALL -NS -NB -F -ARCHIVE -PUA -SUSPICIOUS -NMEM -NREG -P=%LOG_FILE% %VIRUS_DIR%</cmdline>
+        <path>D:/src/scanners/Sophos</path>
+        <flush>1</flush>
+    </scanner>
+    <scanner>
+        <name>Trend</name>
+        <cmdline>vscantm.exe /S /NM /NB /NC /I /VER /VSSHOWINT /VSSPYWARE+ /TMAPTN /SSAPTN /LR=%LOG_FILE% %VIRUS_DIR%</cmdline>
+        <path>D:/src/scanners/trend</path>
+        <flush>1</flush>
+    </scanner>
+</scanners>
+
+
