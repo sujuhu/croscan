@@ -262,29 +262,15 @@ BOOL WINAPI EngineFindNextFileW(
 			uint32_t msg = PMSG_READY;
 			write_pipe(g_engine.pipe, &msg, sizeof(msg));
 			notify = true;
-			return g_engine.FindNextFileW(hFindFile, lpFindFileData);
 		}
 
-		/*
-		OutputDebugString("Hooked FindNextFileW......");
 		//从服务器队列中读取样本
-		//WIN32_FIND_DATAW test = {0};
-		
-		g_engine.FindNextFileW(hFindFile, lpFindFileData);
-		
-		char str[2048] = {0};
-		MakeHexString((uint8_t*)lpFindFileData, sizeof(WIN32_FIND_DATAW), str, sizeof(str)-1 );
-		WIN32_FIND_DATAW data = {0};
-		memcpy(&data, lpFindFileData, sizeof(WIN32_FIND_DATAW));
-		
-		//OutputDebugString(str);
-		//OutputDebugStringW( lpFindFileData->cFileName );
-		*/
 		if (!read_sample(lpFindFileData)) {
 			OutputDebugString("Fetch Sample failed");
+			//memcpy(lpFindFileData, &data, sizeof(WIN32_FIND_DATAW));
+			SetLastError(0x12);
 			return FALSE;
 		} 
-		
 		/*
 		char str2[2048] = {0};
 		MakeHexString((uint8_t*)lpFindFileData, sizeof(WIN32_FIND_DATAW), str2, sizeof(str2)-1 );
@@ -336,19 +322,13 @@ BOOL WINAPI EngineFindNextFileW(
 			}
 		}
 		*/
+		
 		//OutputDebugString(str);
 		//DebugBreak();
 		OutputDebugStringW( lpFindFileData->cFileName );
-		SetLastError(0);
+		SetLastError(2);
 		return TRUE;
 		
-		/*
-		BOOL ret = g_engine.FindNextFileW(hFindFile, lpFindFileData);
-		OutputDebugStringW(lpFindFileData->cAlternateFileName);
-		OutputDebugStringW( lpFindFileData->cFileName );
-		return ret;
-		*/
-
 		/*
 
 

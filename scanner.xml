@@ -6,12 +6,12 @@
         <path>D:/src/scanners/Kaspersky</path>
         <flush>1</flush>
     </scanner>
-    <cancel>
+    <ascanner>
         <name>nod32</name>
         <cmdline>ecls.exe /base-dir=D:\src\scanners\nod32 /unwanted /unsafe /log-all /no-boots /pt=webscan /log-file=%LOG_FILE% %VIRUS_DIR%</cmdline>
         <path>D:/src/scanners/nod32</path>
         <flush>1</flush>
-    </cancel>
+    </ascanner>
     <scanner>
         <name>Rising</name>
         <cmdline>RavScan.exe /A /LOG %LOG_FILE% /F %VIRUS_DIR%</cmdline>

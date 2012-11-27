@@ -14,7 +14,7 @@
 #include "psmsg.h"
 #include "avctrl.h"
 
-#define MAX_QUEUE_SIZE   5
+#define MAX_QUEUE_SIZE  1024
 //引擎描述信息
 typedef struct _scanner_t {
 	char name[256];
@@ -90,7 +90,7 @@ bool start_scanner(scanner_t* scanner)
 	_chdir(scanner->path);
 	if (!CreateProcess(NULL, (LPSTR)scanner->cmdline, NULL, NULL, FALSE, 
 		CREATE_SUSPENDED, NULL, 
-		scanner->path, 
+		scanner->path,
 		&si, 
 		&pi) ) {
 		_chdir(cwd);
@@ -288,8 +288,6 @@ bool start_comm(scanner_t* scanner)
 	if (scanner->pipe == INVALID_PIPE) {
 		return false;
 	}
-
-
 
 	CreateThread(0, 0, pipe_thread, (void*)scanner, 0, 0);
 	return true;
