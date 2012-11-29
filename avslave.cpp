@@ -10,7 +10,7 @@
 #include <shlwapi.h>
 #include "psmsg.h"
 #include "ntdll.h"
-#include "avflush.h"
+//#include "avflush.h"
 
 bool MakeHexString(uint8_t* buffer, int size, char* hex, int max_cch)
 {
@@ -111,7 +111,7 @@ typedef struct _engine_t
 	_ZwQueryDirectoryFile ZwQueryDirectoryFile;
 	int	flush_method;
 	bool win7_laster;
-	flush_t flush;
+	//flush_t flush;
 }engine_t;
 
 engine_t g_engine = {0};
@@ -159,13 +159,27 @@ void EngineFlush()
 
 }
 */
-
 bool is_scan_folder(LPCWSTR lpFileName)
 {
+	/*
+	OutputDebugStringW(lpFileName);
+	OutputDebugStringW(L"__CROSCAN_SAMPLE__\\*");
 
-	if (wcsstr(lpFileName, L"__CROSCAN_SAMPLE__\\*")) {
+
+	char str2[2048] = {0};
+	MakeHexString((uint8_t*)lpFileName, 256, str2, sizeof(str2)-1 );
+	OutputDebugString(str2);
+
+	char str3[2048] = {0};
+	MakeHexString((uint8_t*)L"__CROSCAN_SAMPLE__\\*", 256, str3, sizeof(str3)-1 );
+	OutputDebugString(str3);
+	*/
+	const wchar_t* found = wcsstr(lpFileName, L"__CROSCAN_SAMPLE__\\*");
+	if (found != NULL) {
+		//OutputDebugString("FOUND");
 		return true;
 	} else {
+		//OutputDebugString("NOT FOUND");
 		return false;
 	}
 
@@ -233,11 +247,10 @@ HANDLE WINAPI EngineFindFirstFileExW(
 {
 	HANDLE hfind = g_engine.FindFirstFileExW(lpFileName, fInfoLevelId,
 		lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
-	OutputDebugStringW(lpFileName);
 	if (is_scan_folder(lpFileName)) {
-		OutputDebugString("Is scan folder");
+		//OutputDebugString("Is scan folder");
 		if (g_engine.scan_handle == NULL) {
-			OutputDebugString("Get Handle");
+			//OutputDebugString("Get Handle");
 			g_engine.scan_handle =  hfind;
 		}
 	} 
@@ -266,7 +279,7 @@ BOOL WINAPI EngineFindNextFileW(
 
 		//从服务器队列中读取样本
 		if (!read_sample(lpFindFileData)) {
-			OutputDebugString("Fetch Sample failed");
+			//OutputDebugString("Fetch Sample failed");
 			//memcpy(lpFindFileData, &data, sizeof(WIN32_FIND_DATAW));
 			SetLastError(0x12);
 			return FALSE;
@@ -325,7 +338,7 @@ BOOL WINAPI EngineFindNextFileW(
 		
 		//OutputDebugString(str);
 		//DebugBreak();
-		OutputDebugStringW( lpFindFileData->cFileName );
+		//OutputDebugStringW( lpFindFileData->cFileName );
 		SetLastError(2);
 		return TRUE;
 		
@@ -389,26 +402,31 @@ errno_t atach_engine(/*wchar_t* scanfolder,  int force_flush_method*/)
 	_snprintf(pipename, sizeof(pipename) - 1, "avctrl_%d", pid);
 	g_engine.pipe = open_pipe(pipename);
 	if (g_engine.pipe == INVALID_PIPE) {
-		OutputDebugString("open pipe failed");
-		OutputDebugString(pipename);
+		//OutputDebugString("open pipe failed");
+		//OutputDebugString(pipename);
 		return ENOENT;
 	}
 
 	uint32_t msg = PMSG_INIT;
 	int nb = write_pipe(g_engine.pipe, &msg, sizeof(msg));
 	if (nb != sizeof(msg)) {
-		OutputDebugString("write pipe failed");
+		//OutputDebugString("write pipe failed");
 		return EINVAL;
 	}
 
 	init_t init = {0};
 	nb = read_pipe(g_engine.pipe, &init, sizeof(init_t));
 	if (nb != sizeof(init_t)) {
-		OutputDebugString("read pipe failed");
+		//OutputDebugString("read pipe failed");
 		return EINVAL;
 	}
 
 	g_engine.win7_laster = init.is_win7_laster;
+	if (g_engine.win7_laster) {
+		//OutputDebugString("win7");
+	} else {
+		//OutputDebugString("not win7");
+	}
 	//memcpy(g_engine.scanfolder, scanfolder, sizeof(g_engine.scanfolder));
 
 	//创建文件扫描事件， 用于同步文件扫描请求
@@ -434,28 +452,28 @@ errno_t atach_engine(/*wchar_t* scanfolder,  int force_flush_method*/)
 	g_engine.FindNextFileW
 		= (_FindNextFileW)FindFunctionAddress(modname, (char*)"FindNextFileW");
 	if( g_engine.FindNextFileW == NULL ) {
-		OutputDebugString( "FindNextFileW is NULL" );
+		//OutputDebugString( "FindNextFileW is NULL" );
 		return GetLastError();
 	}
 
 	g_engine.FindFirstFileExW
 	 	= (_FindFirstFileExW)FindFunctionAddress(modname, (char*)"FindFirstFileExW");
 	if (g_engine.FindFirstFileExW == NULL) {
-		OutputDebugString("FindFirstFileExW is NULL");
+		//OutputDebugString("FindFirstFileExW is NULL");
 		return GetLastError();
 	}
 
 	g_engine.ZwQueryInformationFile
 		= (_ZwQueryInformationFile)FindFunctionAddress("ntdll", (char*)"ZwQueryInformationFile");
 	if( g_engine.ZwQueryInformationFile == NULL ) {
-		OutputDebugString( "ZwQueryInformationFile is NULL" );
+		//OutputDebugString( "ZwQueryInformationFile is NULL" );
 		return GetLastError();
 	}
 
 	g_engine.ZwQueryDirectoryFile
 		= (_ZwQueryDirectoryFile)FindFunctionAddress("ntdll", (char*)"ZwQueryDirectoryFile");
 	if (g_engine.ZwQueryDirectoryFile == NULL) {
-		OutputDebugString("ZwQueryDirectoryFile is NULL");
+		//OutputDebugString("ZwQueryDirectoryFile is NULL");
 		return GetLastError();
 	}	
 
@@ -464,18 +482,18 @@ errno_t atach_engine(/*wchar_t* scanfolder,  int force_flush_method*/)
 
 	if (NO_ERROR != DetourAttach((PVOID*)&g_engine.FindFirstFileExW, 
 		(PVOID)EngineFindFirstFileExW)) {
-		OutputDebugString( "DetourAttach FindFirstFileExW Failed");
+		//OutputDebugString( "DetourAttach FindFirstFileExW Failed");
 		return GetLastError();
 	}
 
 	if( NO_ERROR != DetourAttach((PVOID*)&g_engine.FindNextFileW, 
 		(PVOID)EngineFindNextFileW)) {
-		OutputDebugString( "DetourAttach FindNextFileW Failed" );
+		//OutputDebugString( "DetourAttach FindNextFileW Failed" );
 		return GetLastError();
 	}
 
 	if( NO_ERROR != DetourTransactionCommit() ) {
-		OutputDebugString( "DetourTransactionCommit Failed" );
+		//OutputDebugString( "DetourTransactionCommit Failed" );
 		return GetLastError();
 	}
 
@@ -517,7 +535,7 @@ errno_t atach_engine(/*wchar_t* scanfolder,  int force_flush_method*/)
 
 	//初始化完成
 	g_engine.have_inited = true;
-	OutputDebugString( "engine init successfully\n" );
+	//OutputDebugString( "engine init successfully\n" );
 	return 0;
 }
 
