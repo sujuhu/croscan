@@ -447,4 +447,10 @@ void close_scanner(int sd)
 {
 }
 
+bool is_scanner_idle(int sd)
+{
+	scanner_t* scanner = (scanner_t*)sd;
+	return fifo_empty(&scanner->queue);
+}
+
 

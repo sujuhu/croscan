@@ -25,6 +25,8 @@ uint32_t get_scanner_pid(int sd);
 //关闭Scanner
 void close_scanner(int sd);
 
+bool is_scanner_idle(int sd);
+
 #ifdef  __cplusplus
 }
 #endif

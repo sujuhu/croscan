@@ -268,6 +268,18 @@ void parse_scanner_cmdline(const char* name, char* cmdline, int max)
 	strncpy(cmdline, expand_cmdline, max);
 }
 
+bool is_finished_all(slist_t* scanners)
+{
+	snode_t* pos = NULL;
+	slist_for_each(pos, scanners->first) {
+		av_t* av = slist_entry(pos, av_t, node);
+		if (!is_scanner_idle(av->fd)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
 	setforecolor(CLR_WHITE);
@@ -298,7 +310,7 @@ int main(int argc, char* argv[])
 		printf("%-8s%-12s%-40s", "Loading", av->name, "...");
 		parse_scanner_cmdline(av->name, av->cmdline, sizeof(av->cmdline) - 1);
 		//printf("%s\n", av->name);
-		//printf("%s\n", av->cmdline);
+		printf("%s\n", av->cmdline);
 		//printf("%d\n", av->flush);
 
 		//atach
@@ -385,7 +397,22 @@ int main(int argc, char* argv[])
 					break;
 				}
 
-				scan(&scanners, sample_file);
+				const char *request = "is finished?";
+				char *response  = NULL;
+				if (0 == strncmp(sample_file, request, strlen(request))) {
+					response = is_finished_all(&scanners)?"true":"false";
+				} else {
+					scan(&scanners, sample_file);
+					/* 
+					  注意这里并不是样本真正地扫描结束了， 而是加入扫描队列完成
+				 	*/
+					response = "success";
+				}
+
+				nb = write_pipe(p, response, strlen(response));
+				if (nb < 0) {
+					break;
+				}
 			}
 			close_pipe(p);
 			p = NULL;

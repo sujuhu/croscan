@@ -161,8 +161,9 @@ void EngineFlush()
 */
 bool is_scan_folder(LPCWSTR lpFileName)
 {
+	
+	//OutputDebugStringW(lpFileName);
 	/*
-	OutputDebugStringW(lpFileName);
 	OutputDebugStringW(L"__CROSCAN_SAMPLE__\\*");
 
 
@@ -262,6 +263,7 @@ BOOL WINAPI EngineFindNextFileW(
 	IN  HANDLE hFindFile,
 	OUT LPWIN32_FIND_DATAW lpFindFileData)
 {
+	//OutputDebugString("NextFile");
 	//分析hFindFile是否是扫描目录
 	if (hFindFile != g_engine.scan_handle) {
 		//不是扫描目录
@@ -283,7 +285,7 @@ BOOL WINAPI EngineFindNextFileW(
 			//memcpy(lpFindFileData, &data, sizeof(WIN32_FIND_DATAW));
 			SetLastError(0x12);
 			return FALSE;
-		} 
+		}
 		/*
 		char str2[2048] = {0};
 		MakeHexString((uint8_t*)lpFindFileData, sizeof(WIN32_FIND_DATAW), str2, sizeof(str2)-1 );
@@ -535,7 +537,7 @@ errno_t atach_engine(/*wchar_t* scanfolder,  int force_flush_method*/)
 
 	//初始化完成
 	g_engine.have_inited = true;
-	//OutputDebugString( "engine init successfully\n" );
+	OutputDebugString( "engine init successfully\n" );
 	return 0;
 }
 
